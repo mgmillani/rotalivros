@@ -8,8 +8,8 @@ import cgi
 from mimetypes import types_map
 from urlparse import urlparse, parse_qs
 
-HOST_NAME = 'localhost' # !!!REMEMBER TO CHANGE THIS!!!
-PORT_NUMBER = 9000 # Maybe set this to 9000.
+HOST_NAME = 'localhost'
+PORT_NUMBER = 9000
 
 class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 	def do_HEAD(self):
@@ -65,10 +65,11 @@ class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 		try:
 			self.hasBeenInitialized
 		except:
+			self.postVars = {}
 			self.pageMap = {}
 			database = pageHandlers.Database(host="localhost",user="engsoft",passwd="wingedlizards",db="rotalivros")
 			self.pageMap["home"] = pageHandlers.Home(database)
-			self.pageMap["busca"] = pageHandlers.Busca(database)
+			self.pageMap["busca"] = pageHandlers.GroupSearch(database)
 			self.hasBeenInitialized = True
 		else:
 			return

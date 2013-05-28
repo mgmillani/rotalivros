@@ -14,20 +14,13 @@ class Database():
 		table = "<table class='group'>\n"
 		connection = MySQLdb.connect(host=self.host,user=self.user,passwd=self.passwd,db=self.db)
 		cursor = connection.cursor()
-		cursor.execute("SELECT * FROM groups")
+		cursor.execute("SELECT groupId,minUsers,maxUsers FROM groups")
 		rows = cursor.fetchall()
 		rowsStr = ["<tr><th class='group'> Grupo </th> <th class='group'> Minimo </th> <th class='group'> Maximo </th></tr>\n"]
 
-		numF = len(cursor.description)
-		print("Description")
-		for k in cursor.description:
-			print("Next!")
-			for j in k:
-				print(j)
-		
-		i=0		
+		i=0
 		for r in rows:
-			rowsStr.append("<tr>")			
+			rowsStr.append("<tr>")
 			if i%2==0:
 				rowType = "groupEven"
 			else:
@@ -45,13 +38,7 @@ class Database():
 		connection.close()
 
 		return table + "".join(rowsStr) + "</table>"
-		
 
-class GroupPage(WebPage):
-
-	def show(self):
-
-		
 
 class WebPage():
 
@@ -64,10 +51,19 @@ class WebPage():
 		contents = f.read()
 		f.close()
 		return contents
-		
-class Busca(WebPage):
 
-	def show(self):
+class GroupPage(WebPage):
+
+	# pagina que mostra um grupo
+	def show(self,postVars = {}, path = "grupo1"):
+		groupId = path[5:]
+
+
+
+
+class GroupSearch(WebPage):
+
+	def show(self,postVars = {}, path = ""):
 		f = open("pages/busca.html")
 		contents = f.read()
 		f.close()
@@ -77,7 +73,7 @@ class Busca(WebPage):
 
 class Home(WebPage):
 
-	def show(self):
+	def show(self,postVars = {}, path = ""):
 		f = open("pages/home.html")
 		contents = f.read()
 		f.close()
