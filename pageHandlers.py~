@@ -1,4 +1,4 @@
-
+import MySQLdb
 from database import *
 
 class WebPage():
