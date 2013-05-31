@@ -119,12 +119,12 @@ a.ln:link,a.ln:visited
 	text-decoration:none;
 }
 
-table.group
+table.table
 {
 	margin-left: auto;
 	margin-right: auto;
 }
-th.group
+th.header
 {
 	background-color:#5DAF0B;
 	color:white;
@@ -132,14 +132,14 @@ th.group
 	padding-left:10px;
 	padding-right:10px;
 }
-td.groupEven
+td.rowEven
 {
 	background-color:#9DDF4B;
 	text-align:center;
 	padding-left:5px;
 	padding-right:5px;
 }
-td.groupOdd
+td.rowOdd
 {
 	background-color:#CCEEAA;
 	/*background-color:#DFFFBF;*/

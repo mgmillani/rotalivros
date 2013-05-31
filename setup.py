@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf8 -*-
 import MySQLdb
 
 db = MySQLdb.connect(host="localhost",user="engsoft",passwd="wingedlizards",db="rotalivros")
@@ -28,12 +29,12 @@ cursor.execute("INSERT INTO users (userId,login,password,email,cpf,home,phone,po
 (1,'beatriz','qwe','bea@home.invalid','18302582120','avenida qualquer, numero 100, apartamento 101', '90807060', 2,6), \
 (2,'carlos','ijk','carlos@hell.gov','65839295782','bairro patopolis, numero 666', '91238145', 10,2), \
 (3,'denis','lmnw','denis@nowhere.invalid','47729617482','rua 24 de outubro, numero 999', '83938242', 5,5)")
-cursor.execute("INSERT INTO participations (userId,groupId,author,title) VALUES \
-(0,0,'O Tempo e o Vento','Erico Verissimo'), \
-(0,1,'Memorias Postumas de Bras Cubas','Machado de Assis'), \
+cursor.execute("INSERT INTO participations (userId,groupId,title,author) VALUES \
+(0,0,'O Tempo e o Vento','Érico Veríssimo'), \
+(0,1,'Memorias Póstumas de Brás Cubas','Machado de Assis'), \
 (1,2,'Concerto Campestre','?'), \
 (2,3,'A Moreninha','?'), \
-(4,4,'Neuromancer','William Gibson') \
+(3,4,'Neuromancer','William Gibson') \
 ")
 
 

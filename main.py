@@ -1,12 +1,15 @@
 #!/usr/bin/env python
+# -*- coding: utf8 -*-
 
 import time
 import BaseHTTPServer
 import os
-import pageHandlers
 import cgi
 from mimetypes import types_map
 from urlparse import urlparse, parse_qs
+
+import pageHandlers
+from user import *
 
 HOST_NAME = 'localhost'
 PORT_NUMBER = 9000
@@ -40,6 +43,7 @@ class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 			self.path = self.path[1:]
 		if self.path == "":
 			self.path = "home"
+
 		page,ext = self.pageToShow(self.path)
 		#fname,ext = os.path.splitext(page)
 		if ext in (".html", ".css"):
@@ -51,9 +55,9 @@ class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 	#determina qual conteudo vai ser retornado
 	#retorna uma string e a extensao do arquivo
 	def pageToShow(self,name):
-		if name in self.pageMap:
-			return self.pageMap[name].show()
-		else:
+		try:
+			return self.pageHandler.show(self.postVars,name,self.loggedUser)
+		except pageHandlers.PageNotFound:
 			f = open(name)
 			contents = f.read()
 			f.close()
@@ -66,21 +70,18 @@ class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 			self.hasBeenInitialized
 		except:
 			self.postVars = {}
-			self.pageMap = {}
 			database = pageHandlers.Database(host="localhost",user="engsoft",passwd="wingedlizards",db="rotalivros")
-			self.pageMap["home"] = pageHandlers.Home(database)
-			self.pageMap["busca"] = pageHandlers.GroupSearch(database)
+			self.pageHandler = pageHandlers.MainHandler(database)
+			self.loggedUser = User(userId=0)
 			self.hasBeenInitialized = True
-		else:
-			return
 
 if __name__ == '__main__':
 	server_class = BaseHTTPServer.HTTPServer
 	httpd = server_class((HOST_NAME, PORT_NUMBER), MyHandler)
-	print time.asctime(), "Server Starts - %s:%s" % (HOST_NAME, PORT_NUMBER)
+	print (time.asctime(), "Server Starts - %s:%s" % (HOST_NAME, PORT_NUMBER))
 	try:
 		httpd.serve_forever()
 	except KeyboardInterrupt:
 		pass
 	httpd.server_close()
-	print time.asctime(), "Server Stops - %s:%s" % (HOST_NAME, PORT_NUMBER)
+	print (time.asctime(), "Server Stops - %s:%s" % (HOST_NAME, PORT_NUMBER))
