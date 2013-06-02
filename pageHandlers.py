@@ -17,6 +17,7 @@ class MainHandler():
 		self.pageMap["grupos"] = UserGroups(database)
 		self.pageMap["busca"] = GroupSearch(database)
 		self.groupPage = GroupPage(database)
+		self.formPage = FormPage(database)
 
 	def show(self,postVars = {}, path = "", user = User()):
 		if path in self.pageMap:
@@ -25,6 +26,8 @@ class MainHandler():
 		else:
 			if path[:5] == "grupo":
 				return self.groupPage.show(postVars,path,user)
+			elif path[:4] == "form":
+				return self.formPage.show(postVars,path,user)
 			else:
 				raise(PageNotFound)
 
@@ -47,8 +50,8 @@ class WebPage():
 		f.close()
 		return contents
 
-	def makeGroupLink(self,groupId=0):
-		return "<a href='/grupo%d'>Grupo %d</a>"%(groupId,groupId)
+	def makeGroupLink(self,groupId=0,groupName=""):
+		return "<a href='/grupo%d'>%s</a>"%(groupId,groupName)
 
 	def makeTable(self,data = [], titles = []):
 		# titulo
@@ -81,7 +84,7 @@ class UserGroups(WebPage):
 	# lista todos os grupos no qual o usuario faz parte
 	def show(self,postVars = {}, path = "grupo", user = User()):
 		groupList = self.database.getUsersGroups(user)
-		tableData = [[self.makeGroupLink(g.id),g.book] for g in groupList]
+		tableData = [[self.makeGroupLink(g.id,g.name),g.book] for g in groupList]
 		table = self.makeTable(tableData, ["Grupo","Livro Oferecido"] )
 		return self.header() + table + self.tail(), ".html"
 
@@ -89,16 +92,51 @@ class GroupPage(WebPage):
 
 	# pagina que mostra um grupo
 	def show(self,postVars = {}, path = "grupo1", user = User()):
-		groupId = path[5:]
+		groupId = int(path[5:])
 
-
+		#determina se o botao de desistencia foi pressionado
+		if 'bailout' in postVars:
+			#remove o usuario do grupo
+			self.database.removeUserFromGroup(user.userId,groupId)
+		#caso o usuario tente se juntar ao grupo
+		elif 'join' in postVars:
+			book = Struct()
+			book.title = postVars['bookTitle'][0]
+			book.author= postVars['bookAuthor'][0]
+			book.extra = ""
+			if book.title != "" and book.author != "":
+				self.database.addUserToGroup(user.userId,groupId,book)
 
 		groupInfo = self.database.getGroupInfo(groupId)
 		#lista os livros oferecidos
-		tableData = [groupInfo.books[i] + groupInfo.userInfo[i] for i in range(groupInfo.numMembers)]
+		tableData = [groupInfo.books[i] + ["%d+/%d-"%(groupInfo.userInfo[i][0],groupInfo.userInfo[i][1])] for i in range(groupInfo.numMembers)]
 		#tabela com o que cada usuario oferece
-		infoTable = self.makeTable(tableData,["Título","Autor","Avaliações Positivas","Avaliações Negativas"])
-		return self.header() + infoTable + self.tail(), ".html"
+		infoTable = self.makeTable(tableData,["Título","Autor","Avaliações do Usuário"])
+
+		contents = ""
+		# verifica a relacao entre o usuario e o grupo
+		if self.database.isModeratorOf(user.userId,groupId):
+			contents = "Adicionar funcionalidades do moderador"
+		elif self.database.isMemberOf(user.userId,groupId):
+			# Adiciona opcoes de desistencia
+			f = open("pages/bailout.html","rt")
+			contents = f.read()%(groupId)
+			f.close()
+		else:
+			# Adiciona a possiblidade de se juntar ao grupo
+			f = open("pages/join.html","rt")
+			contents = f.read()%(groupId)
+			f.close()
+
+
+		'''
+		elif:
+			# caso esteja cheio, libera as opcoes de desistencia e de confirmacao
+			f = open("pages/groupMember.html")
+			contents = f.read()
+			f.close()
+		'''
+		return self.header() + contents + infoTable + self.tail(), ".html"
 
 class GroupSearch(WebPage):
 
@@ -107,10 +145,30 @@ class GroupSearch(WebPage):
 		contents = f.read()
 		f.close()
 		groupList = self.database.getGroupList()
-		tableData = [ [self.makeGroupLink(g.id),g.minUsers,g.maxUsers,g.maxTime] for g in groupList ]
-		contents += self.makeTable(tableData,["Grupo","Min", "Max", "Tempo Máximo"])
+		tableData = [ [self.makeGroupLink(g.id,g.name) , "%d/%d"%(g.numMembers,g.maxUsers) , "%d dias"%(g.maxTime) , g.private] for g in groupList ]
+		contents += self.makeTable(tableData,["Grupo","Usuários", "Tempo Máximo","Privado"])
 		contents += "</body>\n</html>\n"
-		return self.header() + contents, ".html"
+		return self.header() + contents + self.tail(), ".html"
+
+class FormPage(WebPage):
+
+	def show(self,postVars = {}, path = "form", user = User()):
+		# usuario desistiu de algum grupo
+		if 'bailout' in postVars:
+			f = open("pages/bailoutForm.html")
+			contents = f.read()%(int(postVars['group'][0]))
+			f.close()
+		# usuario ja respondeu um formulario
+		elif 'answered' in postVars:
+			if postVars['answered'][0] == 'bailout':
+				f = open("pages/bailoutFormAnswered.html")
+				contents = f.read()
+				f.close()
+				self.database.removeUserFromGroup(user.userId,int(postVars['group'][0]))
+			else:
+				contents = ""
+
+		return self.header() + contents + self.tail(), ".html"
 
 class Home(WebPage):
 
@@ -118,4 +176,5 @@ class Home(WebPage):
 		f = open("pages/home.html")
 		contents = f.read()
 		f.close()
-		return self.header() + contents, ".html"
+		return self.header() + contents + self.tail(), ".html"
+

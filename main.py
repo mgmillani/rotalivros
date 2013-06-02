@@ -22,6 +22,7 @@ class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
 	def do_POST(self):
 		print("POST RECEIVED")
+		self.init()
 
 		ctype, pdict = cgi.parse_header(self.headers.getheader('content-type'))
 		if ctype == 'multipart/form-data':
@@ -31,13 +32,13 @@ class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 			postvars = cgi.parse_qs(self.rfile.read(length), keep_blank_values=1)
 		else:
 			postvars = {}
-		self.postVars = postvars
+		self.postVars = postvars.copy()
 
 		self.do_GET()
 
 	def do_GET(self):
-		print("GET RECEIVED")
 		"""Respond to a GET request."""
+		#print("GET RECEIVED")
 		self.init()
 		if self.path[0] == "/":
 			self.path = self.path[1:]
@@ -45,7 +46,6 @@ class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 			self.path = "home"
 
 		page,ext = self.pageToShow(self.path)
-		#fname,ext = os.path.splitext(page)
 		if ext in (".html", ".css"):
 			self.send_response(200)
 			self.send_header('Content-type', types_map[ext])
@@ -58,6 +58,7 @@ class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 		try:
 			return self.pageHandler.show(self.postVars,name,self.loggedUser)
 		except pageHandlers.PageNotFound:
+			print("Default behaviour for %s"%(name))
 			f = open(name)
 			contents = f.read()
 			f.close()
