@@ -43,7 +43,8 @@ class Database():
 		connection = MySQLdb.connect(host=self.host,user=self.user,passwd=self.passwd,db=self.db)
 		cursor = connection.cursor()
 		#lista os grupos publicos
-		cursor.execute("SELECT groupId,name,maxUsers,maxTime,private FROM groups WHERE private=0")
+		cursor.execute("SELECT groupId,name,maxUsers,maxTime,private FROM groups WHERE private=0 and not EXISTS \
+		(SELECT groupId FROM participations WHERE participations.groupId=groups.groupId and participations.userId=%d)"%(user.userId))
 		rows = cursor.fetchall()
 		#lista os grupos privados aos quais o usuario foi convidado
 		cursor.execute("SELECT groupId FROM invitations WHERE userId=%d"%(user.userId))

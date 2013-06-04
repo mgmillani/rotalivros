@@ -26,6 +26,24 @@ p.center{color:black ; text-align:center; margin-left:10px ; margin-right:10px;}
 p.even{color:#559911; text-align:left; margin-left:10px ;font-size:18px}
 p.odd{color:#77BB33; text-align:left; margin-left:10px ;font-size:18px}
 
+label.required
+{
+	color: #FF5522;
+	font-weight: bold;
+	display: block;
+	width: 150px;
+	float: left;
+}
+
+label.optional
+{
+	color: #22BB00;
+	font-weight: bold;
+	display: block;
+	width: 150px;
+	float: left;
+}
+
 div.header {padding:0px; background-color:#5DAF0B;}
 
 div.pb
@@ -52,12 +70,12 @@ div.admin
 	background-color:#ddffdd;
 }
 
-div.comment
+div.join
 {
 	padding:5px;
-	border:5px outset #a8cfaa;
+	border:5px outset #a8bdaa;
 	margin:5px;
-	background-color:#ddffdd;
+	background-color:#dfffdf;
 }
 
 div.enigma

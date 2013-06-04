@@ -1,0 +1,27 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazil]{babel}
+\usepackage{indentfirst}
+
+\title{Engenharia de Software - Etapa 3}
+\author{Amilcar Machado Júnior,Marcelo Garlet Millani}
+
+\begin{document}
+
+\maketitle
+
+
+\section{Casos de Uso implementados}
+
+\begin{itemize}
+ \item Listar grupos existentes
+ \item Aceitar participação em um grupo
+	\begin{itemize}
+	 \item Fornecer informações sobre o livro
+	\end{itemize}
+
+\end{itemize}
+
+
+\end{document}
