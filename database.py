@@ -126,6 +126,29 @@ class Database():
 		connection.close()
 		return result
 
+	def isFull(self,groupId):
+		connection = MySQLdb.connect(host=self.host,user=self.user,passwd=self.passwd,db=self.db)
+		cursor = connection.cursor()
+		#conta o numero de usuarios no grupo
+		cursor.execute("SELECT count(*) FROM participations WHERE groupId=%d"%(groupId))
+		members = cursor.fetchall()[0][0]
+		#determina a capacidade do grupo
+		cursor.execute("SELECT maxUsers	FROM groups WHERE groupId=%d"%(groupId))
+		if members == cursor.fetchall()[0][0]:
+			return True
+		else:
+			return False
+
+	def userHasConfirmed(self,userId,groupId):
+		connection = MySQLdb.connect(host=self.host,user=self.user,passwd=self.passwd,db=self.db)
+		cursor = connection.cursor()
+		#conta o numero de usuarios no grupo
+		cursor.execute("SELECT count(*) FROM participations WHERE groupId=%d and userId=%d and confirmed=1"%(groupId,userId))
+		if cursor.fetchall()[0][0] == 0:
+			return False
+		else:
+			return True
+
 	def removeUserFromGroup(self,userId,groupId):
 		connection = MySQLdb.connect(host=self.host,user=self.user,passwd=self.passwd,db=self.db)
 		cursor = connection.cursor()
@@ -137,18 +160,25 @@ class Database():
 
 	# adiciona um usuario em um grupos
 	# book eh uma Struct com os seguintes campos:
-	# title,author,extra
+	# title,author,year,publisher,edition,isbn,language
 	def addUserToGroup(self,userId,groupId,book = Struct()):
 		connection = MySQLdb.connect(host=self.host,user=self.user,passwd=self.passwd,db=self.db)
 		cursor = connection.cursor()
 
 		book.title = connection.escape_string(book.title)
 		book.author= connection.escape_string(book.author)
-		book.extra = connection.escape_string(book.extra)
+		book.year = connection.escape_string(book.year)
+		book.publisher = connection.escape_string(book.publisher)
+		book.edition = connection.escape_string(book.edition)
+		book.isbn = connection.escape_string(book.isbn)
+		book.language = connection.escape_string(book.language)
+
 		try:
-			cursor.execute("INSERT INTO participations (userId,groupId,title,author,extraInfo) VALUES (%d,%d,'%s','%s','%s')"%(userId,groupId,book.title,book.author,book.extra))
-		except:
-			pass
+			cursor.execute("INSERT INTO participations\
+			(userId,groupId,title,author,year,publisher,edition,isbn,language) VALUES\
+			(%d,    %d,     '%s',  '%s', '%s',  '%s',    '%s',   '%s','%s')"%(userId, groupId, book.title, book.author, book.year, book.publisher, book.edition, book.isbn, book.language))
+		except MySQLdb.Error, e:
+			print("An error has been passed. %s"%e)
 		connection.commit()
 
 		cursor.close()

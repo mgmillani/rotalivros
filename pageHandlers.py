@@ -103,9 +103,15 @@ class GroupPage(WebPage):
 			book = Struct()
 			book.title = postVars['bookTitle'][0]
 			book.author= postVars['bookAuthor'][0]
-			book.extra = ""
+			book.year = postVars['bookYear'][0]
+			book.publisher = postVars['bookPublisher'][0]
+			book.edition = postVars['bookEdition'][0]
+			book.isbn = postVars['bookISBN'][0]
+			book.language = postVars['bookLanguage'][0]
 			if book.title != "" and book.author != "":
 				self.database.addUserToGroup(user.userId,groupId,book)
+		elif 'confirm' in postVars:
+			self.database.confirmUserParticipation(user.userId,groupId)
 
 		groupInfo = self.database.getGroupInfo(groupId)
 		#lista os livros oferecidos
@@ -116,16 +122,22 @@ class GroupPage(WebPage):
 		contents = ""
 		# verifica a relacao entre o usuario e o grupo
 		if self.database.isModeratorOf(user.userId,groupId):
-			contents = "Adicionar funcionalidades do moderador"
+			contents += "Adicionar funcionalidades do moderador"
 		elif self.database.isMemberOf(user.userId,groupId):
-			# Adiciona opcoes de desistencia
-			f = open("pages/bailout.html","rt")
-			contents = f.read()%(groupId)
-			f.close()
+			if not self.database.userHasConfirmed(user.userId,groupId):
+				# Adiciona opcoes de desistencia
+				f = open("pages/bailout.html","rt")
+				contents += f.read()%(groupId)
+				f.close()
+				# se o grupo estiver cheio, adiciona a possiblidade de confirmar a participação
+				if self.database.isFull(groupId):
+					f = open("pages/confirm.html","rt")
+					contents += f.read()%(groupId)
+					f.close()
 		else:
 			# Adiciona a possiblidade de se juntar ao grupo
 			f = open("pages/join.html","rt")
-			contents = f.read()%(groupId)
+			contents += f.read()%(groupId)
 			f.close()
 
 
