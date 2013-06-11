@@ -21,6 +21,14 @@ try:
 	cursor.execute("DROP TABLE invitations")
 except:
 	pass
+try:
+	cursor.execute("DROP TABLE exchanges")
+except:
+	pass
+try:
+	cursor.execute("DROP TABLE cicles")
+except:
+	pass
 
 cursor.execute("CREATE TABLE groups (\
 owner int,\
@@ -56,6 +64,10 @@ confirmed int,\
 PRIMARY KEY (userId,groupId))")
 cursor.execute("CREATE TABLE invitations (userId int, groupId int, PRIMARY KEY (userId,groupId))")
 
+cursor.execute("CREATE TABLE exchanges (exchangeId int, fromUserId int, toUserId int, groupId int, PRIMARY KEY (exchangeId))")
+
+cursor.execute("CREATE TABLE cicles (groupId, exchangeId int, PRIMARY KEY (groupId,exchangeId))")
+
 cursor.execute("INSERT INTO groups (owner,groupId,name,maxUsers,maxTime,private) VALUES \
 (0,0,'Clube do Bolinha',5,10,0), \
 (0,1,'Os Batutinhas',8,20,0), \
@@ -71,7 +83,7 @@ cursor.execute("INSERT INTO users (userId,login,password,email,cpf,home,phone,po
 cursor.execute("INSERT INTO participations (userId,groupId,title,author,year,publisher,edition, isbn, language, accepted, confirmed) VALUES \
 (0,0,'O Tempo e o Vento','Érico Veríssimo', '1980', '', '3', '', 'Português',1,0), \
 (0,1,'Memorias Póstumas de Brás Cubas','Machado de Assis', '1950', '', '', '', 'Português',1,0), \
-(0,2,'O Conde de Monte Cristo Vol. I','Alexandre Dumas', '1844', '1', 'Manuscrito', '', 'Francês',1,1), \
+(0,2,'O Conde de Monte Cristo Vol. I','Alexandre Dumas', '1844', '1', 'Manuscrito', '', 'Francês',1,0), \
 (1,2,'Concerto Campestre','Luiz Antonio de Assis Brasil','','', '','','Inglês',1,1), \
 (2,2,'Alice no País das Maravilhas','Lewis Carrol','1865','', '1','','Inglês',1,1), \
 (3,2,'Apanhador no campo de Centeio','J.D. Salinger','','', '','','Inglês',1,1), \

@@ -149,6 +149,21 @@ class Database():
 		else:
 			return True
 
+	def groupCicleHasStarted(self,groupId):
+		connection = MySQLdb.connect(host=self.host,user=self.user,passwd=self.passwd,db=self.db)
+		cursor = connection.cursor()
+		#conta o numero de usuarios que confirmaram a participacao
+		cursor.execute("SELECT count(*) FROM participations WHERE groupId=%d and confirmed=1"%(groupId))
+		numConfirmed = cursor.fetchall()[0][0]
+		#determina o numero necessario de usuarios
+		cursor.execute("SELECT maxUsers FROM groups WHERE groupId=%d"%(groupId))
+		maxUsers = cursor.fetchall()[0][0]
+
+		if maxUsers == numConfirmed:
+			return True
+		else:
+			return False		
+
 	def removeUserFromGroup(self,userId,groupId):
 		connection = MySQLdb.connect(host=self.host,user=self.user,passwd=self.passwd,db=self.db)
 		cursor = connection.cursor()
@@ -178,12 +193,26 @@ class Database():
 			(userId,groupId,title,author,year,publisher,edition,isbn,language) VALUES\
 			(%d,    %d,     '%s',  '%s', '%s',  '%s',    '%s',   '%s','%s')"%(userId, groupId, book.title, book.author, book.year, book.publisher, book.edition, book.isbn, book.language))
 		except MySQLdb.Error, e:
-			print("An error has been passed. %s"%e)
+			print("Erro no banco de dados: %s"%e)
 		connection.commit()
 
 		cursor.close()
 		connection.close()
 
+	def confirmUserParticipation(self,userId,groupId):
+		connection = MySQLdb.connect(host=self.host,user=self.user,passwd=self.passwd,db=self.db)
+		cursor = connection.cursor()
+		
+		try:
+			query = "UPDATE participations SET confirmed=1 WHERE groupId=%d and userId=%d"%(groupId,userId)
+			cursor.execute(query)
+		except MySQLdb.Error, e:
+			print("Erro no banco de dados: %s"%e)
+		connection.commit()
+
+		cursor.close()
+		connection.close()
+	
 
 
 

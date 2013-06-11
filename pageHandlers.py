@@ -134,6 +134,12 @@ class GroupPage(WebPage):
 					f = open("pages/confirm.html","rt")
 					contents += f.read()%(groupId)
 					f.close()
+			# se o ciclo de trocas ja comecou, mostra ao usuario para quem deve mandar o livro, e quanto tempo tem para faze-lo
+			elif self.database.groupCicleHasStarted(groupId):
+				contents += "Ciclo de trocas já começou"
+			# caso contrario, apenas informa que o usuario ja confirmou sua participacao
+			else:
+				contents += "Participação no grupo já foi confirmada"
 		else:
 			# Adiciona a possiblidade de se juntar ao grupo
 			f = open("pages/join.html","rt")
