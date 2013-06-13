@@ -37,17 +37,18 @@ class Database():
 
 		return groupInfo
 
+	# determina os grupos disponiveis ao usuario
 	# retorna uma lista de Struct com os atributos:
 	#  id, name,numMembers, maxUsers, maxTime, private
-	def getGroupList(self,user = User()):
+	def getGroupList(self,userId):
 		connection = MySQLdb.connect(host=self.host,user=self.user,passwd=self.passwd,db=self.db)
 		cursor = connection.cursor()
 		#lista os grupos publicos
 		cursor.execute("SELECT groupId,name,maxUsers,maxTime,private FROM groups WHERE private=0 and not EXISTS \
-		(SELECT groupId FROM participations WHERE participations.groupId=groups.groupId and participations.userId=%d)"%(user.userId))
+		(SELECT groupId FROM participations WHERE participations.groupId=groups.groupId and participations.userId=%d)"%(userId))
 		rows = cursor.fetchall()
 		#lista os grupos privados aos quais o usuario foi convidado
-		cursor.execute("SELECT groupId FROM invitations WHERE userId=%d"%(user.userId))
+		cursor.execute("SELECT groupId FROM invitations WHERE userId=%d"%(userId))
 		private = cursor.fetchall()
 
 		#adiciona esses grupos a lista de grupos disponiveis
@@ -76,10 +77,11 @@ class Database():
 
 		return groups
 
-	def getUsersGroups(self,user):
+	# lista todos os grupos dos quais o usuario eh membro
+	def getUsersGroups(self,userId):
 		connection = MySQLdb.connect(host=self.host,user=self.user,passwd=self.passwd,db=self.db)
 		cursor = connection.cursor()
-		cursor.execute("SELECT groupId,title FROM participations WHERE userId=%s"%(user.userId))
+		cursor.execute("SELECT groupId,title FROM participations WHERE userId=%s"%(userId))
 		rows = cursor.fetchall()
 		groups = []
 		for r in rows:

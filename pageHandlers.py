@@ -83,7 +83,7 @@ class UserGroups(WebPage):
 
 	# lista todos os grupos no qual o usuario faz parte
 	def show(self,postVars = {}, path = "grupo", user = User()):
-		groupList = self.database.getUsersGroups(user)
+		groupList = self.database.getUsersGroups(user.userId)
 		tableData = [[self.makeGroupLink(g.id,g.name),g.book] for g in groupList]
 		table = self.makeTable(tableData, ["Grupo","Livro Oferecido"] )
 		return self.header() + table + self.tail(), ".html"
@@ -162,7 +162,7 @@ class GroupSearch(WebPage):
 		f = open("pages/busca.html")
 		contents = f.read()
 		f.close()
-		groupList = self.database.getGroupList()
+		groupList = self.database.getGroupList(user.userId)
 		tableData = [ [self.makeGroupLink(g.id,g.name) , "%d/%d"%(g.numMembers,g.maxUsers) , "%d dias"%(g.maxTime) , g.private] for g in groupList ]
 		contents += self.makeTable(tableData,["Grupo","Usuários", "Tempo Máximo","Privado"])
 		contents += "</body>\n</html>\n"

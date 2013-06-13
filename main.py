@@ -10,11 +10,19 @@ from urlparse import urlparse, parse_qs
 
 import pageHandlers
 from user import *
+from struct import *
 
 HOST_NAME = 'localhost'
 PORT_NUMBER = 9000
 
-class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
+data = Struct ()
+
+database = pageHandlers.Database(host="localhost",user="engsoft",passwd="wingedlizards",db="rotalivros")
+data.pageHandler = pageHandlers.MainHandler(database)
+data.loggedUser = User(userId=0)
+data.postVars = {}
+
+class HTTPServer(BaseHTTPServer.BaseHTTPRequestHandler):
 	def do_HEAD(self):
 		self.send_response(200)
 		self.send_header("Content-type", "text/html")
@@ -22,7 +30,6 @@ class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
 	def do_POST(self):
 		print("POST RECEIVED")
-		self.init()
 
 		ctype, pdict = cgi.parse_header(self.headers.getheader('content-type'))
 		if ctype == 'multipart/form-data':
@@ -32,14 +39,13 @@ class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 			postvars = cgi.parse_qs(self.rfile.read(length), keep_blank_values=1)
 		else:
 			postvars = {}
-		self.postVars = postvars.copy()
+		data.postVars = postvars.copy()
 
 		self.do_GET()
 
 	def do_GET(self):
 		"""Respond to a GET request."""
 		#print("GET RECEIVED")
-		self.init()
 		if self.path[0] == "/":
 			self.path = self.path[1:]
 		if self.path == "":
@@ -56,7 +62,7 @@ class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 	#retorna uma string e a extensao do arquivo
 	def pageToShow(self,name):
 		try:
-			return self.pageHandler.show(self.postVars,name,self.loggedUser)
+			return data.pageHandler.show(data.postVars,name,data.loggedUser)
 		except pageHandlers.PageNotFound:
 			print("Default behaviour for %s"%(name))
 			f = open(name)
@@ -65,20 +71,9 @@ class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 			fname,ext = os.path.splitext(name)
 			return contents,ext
 
-	#inicializa o mapa das paginas se ele nao foi inicializado
-	def init(self):
-		try:
-			self.hasBeenInitialized
-		except:
-			self.postVars = {}
-			database = pageHandlers.Database(host="localhost",user="engsoft",passwd="wingedlizards",db="rotalivros")
-			self.pageHandler = pageHandlers.MainHandler(database)
-			self.loggedUser = User(userId=0)
-			self.hasBeenInitialized = True
-
 if __name__ == '__main__':
 	server_class = BaseHTTPServer.HTTPServer
-	httpd = server_class((HOST_NAME, PORT_NUMBER), MyHandler)
+	httpd = server_class((HOST_NAME, PORT_NUMBER), HTTPServer)
 	print (time.asctime(), "Server Starts - %s:%s" % (HOST_NAME, PORT_NUMBER))
 	try:
 		httpd.serve_forever()
