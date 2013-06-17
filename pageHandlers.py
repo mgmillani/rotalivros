@@ -31,7 +31,6 @@ class MainHandler():
 			else:
 				raise(PageNotFound)
 
-
 class WebPage():
 
 	def __init__(self,database):

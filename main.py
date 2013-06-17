@@ -64,7 +64,7 @@ class HTTPServer(BaseHTTPServer.BaseHTTPRequestHandler):
 		try:
 			return data.pageHandler.show(data.postVars,name,data.loggedUser)
 		except pageHandlers.PageNotFound:
-			print("Default behaviour for %s"%(name))
+			#print("Default behaviour for %s"%(name))
 			f = open(name)
 			contents = f.read()
 			f.close()

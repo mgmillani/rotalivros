@@ -66,7 +66,7 @@ cursor.execute("CREATE TABLE invitations (userId int, groupId int, PRIMARY KEY (
 
 cursor.execute("CREATE TABLE exchanges (exchangeId int, fromUserId int, toUserId int, groupId int, PRIMARY KEY (exchangeId))")
 
-cursor.execute("CREATE TABLE cicles (groupId, exchangeId int, PRIMARY KEY (groupId,exchangeId))")
+cursor.execute("CREATE TABLE cicles (groupId int, exchangeId int, PRIMARY KEY (groupId,exchangeId))")
 
 cursor.execute("INSERT INTO groups (owner,groupId,name,maxUsers,maxTime,private) VALUES \
 (0,0,'Clube do Bolinha',5,10,0), \

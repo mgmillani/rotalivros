@@ -164,7 +164,7 @@ class Database():
 		if maxUsers == numConfirmed:
 			return True
 		else:
-			return False		
+			return False
 
 	def removeUserFromGroup(self,userId,groupId):
 		connection = MySQLdb.connect(host=self.host,user=self.user,passwd=self.passwd,db=self.db)
@@ -194,9 +194,9 @@ class Database():
 			cursor.execute("INSERT INTO participations\
 			(userId,groupId,title,author,year,publisher,edition,isbn,language) VALUES\
 			(%d,    %d,     '%s',  '%s', '%s',  '%s',    '%s',   '%s','%s')"%(userId, groupId, book.title, book.author, book.year, book.publisher, book.edition, book.isbn, book.language))
+			connection.commit()
 		except MySQLdb.Error, e:
 			print("Erro no banco de dados: %s"%e)
-		connection.commit()
 
 		cursor.close()
 		connection.close()
@@ -204,18 +204,41 @@ class Database():
 	def confirmUserParticipation(self,userId,groupId):
 		connection = MySQLdb.connect(host=self.host,user=self.user,passwd=self.passwd,db=self.db)
 		cursor = connection.cursor()
-		
+
 		try:
 			query = "UPDATE participations SET confirmed=1 WHERE groupId=%d and userId=%d"%(groupId,userId)
 			cursor.execute(query)
+			connection.commit()
+			# verifica se todos confirmaram
+			print("Checking if cicle has started")
+			if self.groupCicleHasStarted(groupId):
+				# gera um ciclo aleatorio
+				print("Yup, it did")
+				self.generateGroupCicle(groupId)
+				print("Cicle made")
+
 		except MySQLdb.Error, e:
 			print("Erro no banco de dados: %s"%e)
-		connection.commit()
 
 		cursor.close()
 		connection.close()
-	
 
+
+	def generateGroupCicle(self,groupId):
+		connection = MySQLdb.connect(host=self.host,user=self.user,passwd=self.passwd,db=self.db)
+		cursor = connection.cursor()
+
+		# determina todos os membros do grupo
+		cursor.execute("SELECT userId FROM participations WHERE groupId=%d"%(groupId))
+		rows = cursor.fetchall()
+		users = []
+		for r in rows:
+			users.append(r[0])
+			print(users[-1])
+
+
+		cursor.close()
+		connection.close()
 
 
 
