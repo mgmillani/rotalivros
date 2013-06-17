@@ -136,6 +136,10 @@ class GroupPage(WebPage):
 			# se o ciclo de trocas ja comecou, mostra ao usuario para quem deve mandar o livro, e quanto tempo tem para faze-lo
 			elif self.database.groupCicleHasStarted(groupId):
 				contents += "Ciclo de trocas já começou"
+				# determina para quem o usuario deve mandar os livros e até qual data
+				destination = self.database.getDestinationInfo(user.id,groupId)
+				contents += "<p>Endereço de Destino:%s</p>\n<br>"%(destination.address)
+				contents += "<p>Data limite:%s</p>\n<br>"%(destination.date)
 			# caso contrario, apenas informa que o usuario ja confirmou sua participacao
 			else:
 				contents += "Participação no grupo já foi confirmada"

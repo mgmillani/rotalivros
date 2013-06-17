@@ -2,6 +2,7 @@ import MySQLdb
 
 from struct import *
 from user import *
+from random import Random
 
 class Database():
 
@@ -98,6 +99,29 @@ class Database():
 		connection.close()
 
 		return groups
+
+	# retorna uma Struct com os atributos
+	# address, date
+	def getDestinationInfo(self,userId,groupId):
+		connection = MySQLdb.connect(host=self.host,user=self.user,passwd=self.passwd,db=self.db)
+		cursor = connection.cursor()
+		# determina para qual usuario deve-se mandar o livro
+		cursor.execute("SELECT userId FROM exchanges WHERE fromUser=%s and groupId=%d"%(userId,groupId))
+		rows = cursor.fetchall()
+		toUser = rows[0][0]
+
+		cursor.execute("SELECT address FROM users WHERE userId=%d"%(toUser))
+		result = Struct()
+		result.address = cursor.fetchall()[0][0]
+		cursor.execute("SELECT beginDate FROM cicles WHERE groupId=%d"%(groupId))
+		result.date = cursor.fetchall()[0][0]
+
+		cursor.close()
+		connection.close()
+	
+		return result
+
+		
 
 	#determina se um usuario eh moderador de um grupo
 	def isModeratorOf(self,userId,groupId):
@@ -210,15 +234,13 @@ class Database():
 			cursor.execute(query)
 			connection.commit()
 			# verifica se todos confirmaram
-			print("Checking if cicle has started")
 			if self.groupCicleHasStarted(groupId):
 				# gera um ciclo aleatorio
-				print("Yup, it did")
-				self.generateGroupCicle(groupId)
-				print("Cicle made")
+				self.generateGroupCicle(groupId)			
 
 		except MySQLdb.Error, e:
 			print("Erro no banco de dados: %s"%e)
+			print("Tentou-se executar %s"%(query))
 
 		cursor.close()
 		connection.close()
@@ -234,8 +256,31 @@ class Database():
 		users = []
 		for r in rows:
 			users.append(r[0])
-			print(users[-1])
+		r = Random()
+		r.shuffle(users)
+		
+		tupples = []
+		for a in range(0,len(users)-1):
+			tupples.append("(%d,%d,%d)"%(users[a],users[a+1],groupId))
+		tupples.append("(%d,%d,%d)"%(users[-1],users[0],groupId))
 
+		query = "INSERT INTO exchanges (fromUser, toUser, groupId) VALUES " + ",".join(tupples)
+		try:
+			cursor.execute(query)
+		except MySQLdb.Error, e:
+			print("Erro no banco de dados: %s"%e)
+			print("Tentou-se executar %s"%(query))
+
+		# adiciona a data em que o ciclo comecou
+		today = "2013/04/02"
+		query = "INSERT INTO cicles (groupId,beginDate) VALUES (%d,%s)"%(groupId,today)
+		try:
+			cursor.execute(query)
+		except MySQLdb.Error, e:
+			print("Erro no banco de dados: %s"%e)
+			print("Tentou-se executar %s"%(query))	
+		
+		connection.commit()
 
 		cursor.close()
 		connection.close()
