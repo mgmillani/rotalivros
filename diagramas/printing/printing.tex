@@ -249,14 +249,219 @@
 			 \item [visibilidade] Público
 			 \item [Entrada] \mbox{}
 				\begin{description} % entrada
-				 \item [ : int] Id do usuário
-				 \item [ : int] Id do grupo
+				 \item [groupId : int] Id do grupo
 				\end{description} % entrada
 				
-			 \item [retorno : bool ] 
+			 \item [retorno : bool ] se o ciclo iniciou ou não
 				
 			\end{description} % propriedades
 			
+			\item [removeUserFromGroup] remove o usuário do grupo
+			\begin{description} % propriedades
+			 \item [visibilidade] Público
+			 \item [Entrada] \mbox{}
+				\begin{description} % entrada
+				 \item [groupId : int] Id do grupo
+				 \item [userId : int] Id do usuário
+				\end{description} % entrada
+				
+			 \item [retorno : NoneType ]
+				
+			\end{description} % propriedades
+			
+			\item [addUserToGroup] adiciona um usuário ao grupo
+			\begin{description} % propriedades
+			 \item [visibilidade] Público
+			 \item [Entrada] \mbox{}
+				\begin{description} % entrada
+				 \item [groupId : int] Id do grupo
+				 \item [userId : int] Id do usuário
+				 \item [book : T] onde T é uma Struct com os campos:
+					\begin{description} 
+					\item [title : str] Título
+					\item [author : str] Autor
+					\item [year : str] Ano de publicação
+					\item [publisher : str] Editora
+					\item [edition : str] Edição
+					\item [isbn : str] Código ISBN
+					\end{description} 
+				\end{description} % entrada
+				
+			 \item [retorno : NoneType ]
+				
+			\end{description} % propriedades
+			
+			\item [confirmUserParticipation] confirma a participação de um usuário no grupo
+			\begin{description} % propriedades
+			 \item [visibilidade] Público
+			 \item [Entrada] \mbox{}
+				\begin{description} % entrada
+				 \item [groupId : int] Id do grupo
+				 \item [userId : int] Id do usuário
+				\end{description} % entrada
+				
+			 \item [retorno : NoneType ]
+				
+			\end{description} % propriedades
+			
+			\item [generateGroupCicle] cria um ciclo aleatório de trocas de livros para um grupo
+			\begin{description} % propriedades
+			 \item [visibilidade] Privado
+			 \item [Entrada] \mbox{}
+				\begin{description} % entrada
+				 \item [groupId : int] Id do grupo
+				\end{description} % entrada
+				
+			 \item [retorno : NoneType ]
+				
+			\end{description} % propriedades			
+			
 		\end{description} % métodos
+		
+	\subsection{MainHandler}
+	
+	\begin{description}
+		\item [Propósito] Centralizar as páginas existentes, de forma que apenas uma classe precise saber quem é responsável por renderizar qual página
+	\end{description}
+	
+	\subsubsection{Atributos}
+		\begin{description}
+		 \item [database : Database] Acesso ao banco de dados
+			\begin{description}
+			 \item [Visibilidade] Privado
+			\end{description}
+			
+			\item [pageMap : dict] Relaciona o nome da página pedida com o objeto que deve provê-la
+			\begin{description}
+			 \item [Visibilidade] Privado
+			\end{description}
+			
+			\item [groupPage : GroupPage] Objeto que provê a página de um grupo
+			\begin{description}
+			 \item [Visibilidade] Privado
+			\end{description}
+			
+			\item [formPage: FormPage] Objeto que provê um formulário
+			\begin{description}
+			 \item [Visibilidade] Privado
+			\end{description}
+
+		\end{description}
+		
+		\subsubsection{Métodos}
+		\begin{description} % métodos
+		 \item [show] gera o conteúdo de uma página
+			\begin{description} % propriedades
+			 \item [visibilidade] Público
+			 \item [Entrada] \mbox{}
+				\begin{description} % entrada
+				 \item [postVars : dict] relaciona o nome de uma variável recebida por POST com seu valor
+				 \item [path : str] caminho da página pedida
+				 \item [user : User] usuário que solicitou a página
+				\end{description} % entrada
+				
+				\item [Retorno : (str,str)] conteúdo da página e seu tipo
+				
+				\end{description} % propriedades
+				
+			\end{description} % métodos
+	
+	\subsection{WebPage}
+	
+	\begin{description}
+		\item [Propósito] Modelo para uma página qualquer, fornecendo métodos padrão para o cabeçalho e rodapé.
+	\end{description}
+	
+	\subsubsection{Métodos}
+		\begin{description} % métodos
+		 \item [header] gera o cabeçalho de uma página
+			\begin{description} % propriedades
+				\item [visibilidade] Público			 
+				\item [Retorno : str] cabeçalho da página				
+			\end{description} % propriedades
+			
+			\item [tail] gera o rodapé de uma página
+			\begin{description} % propriedades
+				\item [visibilidade] Público			 
+				\item [Retorno : str] rodapé da página
+			\end{description} % propriedades
+			
+			\item [makeGroupLink] gera o código HTML para o link de um grupo
+			\begin{description} % propriedades
+				\item [visibilidade] Público			 
+				\item [Entrada] \mbox{}
+				\begin{description} % entrada
+				 \item [groupId : int] id do grupo
+				 \item [groupName: str] nome do grupo
+				\end{description} % entrada
+				
+				\item [Retorno : str] código HTML para o link
+			\end{description} % propriedades
+			
+			\item [makeTable] gera o código HTML de uma tabela com os dados passados
+			\begin{description} % propriedades
+				\item [visibilidade] Público
+				\item [Entrada] \mbox{}
+				\begin{description} % entrada
+				 \item [data : str list list] lista das linhas da tabela, sendo que cada linha é uma lista de colunas
+				 \item [titles : str list] título de cada coluna
+				\end{description} % entrada
+				\item [Retorno : str] código HTML para a tabela
+			\end{description} % propriedades
+		
+	
+	\subsection{GroupSearch}
+	
+	\begin{description}
+		\item [Propósito] Centralizar as pesquisas no banco de dados de forma que conhecimento deste seja apenas necessário dentro da classe.
+	\end{description}
+	
+	\subsection{ReviewPage}
+	
+	\begin{description}
+		\item [Propósito] Centralizar as pesquisas no banco de dados de forma que conhecimento deste seja apenas necessário dentro da classe.
+	\end{description}
+	
+	\subsection{AdminPage}
+	
+	\begin{description}
+		\item [Propósito] Centralizar as pesquisas no banco de dados de forma que conhecimento deste seja apenas necessário dentro da classe.
+	\end{description}
+	
+	\subsection{UserSearch}
+	
+	\begin{description}
+		\item [Propósito] Centralizar as pesquisas no banco de dados de forma que conhecimento deste seja apenas necessário dentro da classe.
+	\end{description}
+	
+	\subsection{UserGroups}
+	
+	\begin{description}
+		\item [Propósito] Centralizar as pesquisas no banco de dados de forma que conhecimento deste seja apenas necessário dentro da classe.
+	\end{description}
+	
+	\subsection{FormPage}
+	
+	\begin{description}
+		\item [Propósito] Centralizar as pesquisas no banco de dados de forma que conhecimento deste seja apenas necessário dentro da classe.
+	\end{description}
+	
+	\subsection{GroupPage}
+	
+	\begin{description}
+		\item [Propósito] Centralizar as pesquisas no banco de dados de forma que conhecimento deste seja apenas necessário dentro da classe.
+	\end{description}
+	
+	\subsection{Home}
+	
+	\begin{description}
+		\item [Propósito] Centralizar as pesquisas no banco de dados de forma que conhecimento deste seja apenas necessário dentro da classe.
+	\end{description}
+	
+	\subsection{Message}
+	
+	\begin{description}
+		\item [Propósito] Centralizar as pesquisas no banco de dados de forma que conhecimento deste seja apenas necessário dentro da classe.
+	\end{description}
  
 \end{document}

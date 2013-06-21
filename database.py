@@ -118,10 +118,10 @@ class Database():
 
 		cursor.close()
 		connection.close()
-	
+
 		return result
 
-		
+
 
 	#determina se um usuario eh moderador de um grupo
 	def isModeratorOf(self,userId,groupId):
@@ -236,7 +236,7 @@ class Database():
 			# verifica se todos confirmaram
 			if self.groupCicleHasStarted(groupId):
 				# gera um ciclo aleatorio
-				self.generateGroupCicle(groupId)			
+				self.generateGroupCicle(groupId)
 
 		except MySQLdb.Error, e:
 			print("Erro no banco de dados: %s"%e)
@@ -258,7 +258,7 @@ class Database():
 			users.append(r[0])
 		r = Random()
 		r.shuffle(users)
-		
+
 		tupples = []
 		for a in range(0,len(users)-1):
 			tupples.append("(%d,%d,%d)"%(users[a],users[a+1],groupId))
@@ -278,8 +278,8 @@ class Database():
 			cursor.execute(query)
 		except MySQLdb.Error, e:
 			print("Erro no banco de dados: %s"%e)
-			print("Tentou-se executar %s"%(query))	
-		
+			print("Tentou-se executar %s"%(query))
+
 		connection.commit()
 
 		cursor.close()
