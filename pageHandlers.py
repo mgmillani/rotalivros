@@ -15,7 +15,8 @@ class MainHandler():
 		self.pageMap = {}
 		self.pageMap["home"] = Home(database)
 		self.pageMap["grupos"] = UserGroups(database)
-		self.pageMap["busca"] = GroupSearch(database)
+		self.pageMap["buscaGrupos"] = GroupSearch(database)
+		self.pageMap["buscaUsuario"] = UserSearch(database)
 		self.groupPage = GroupPage(database)
 		self.formPage = FormPage(database)
 
@@ -161,7 +162,7 @@ class GroupPage(WebPage):
 
 class GroupSearch(WebPage):
 
-	def show(self,postVars = {}, path = "busca", user = User()):
+	def show(self,postVars = {}, path = "buscaGrupos", user = User()):
 		f = open("pages/busca.html")
 		contents = f.read()
 		f.close()
@@ -170,6 +171,11 @@ class GroupSearch(WebPage):
 		contents += self.makeTable(tableData,["Grupo","Usuários", "Tempo Máximo","Privado"])
 		contents += "</body>\n</html>\n"
 		return self.header() + contents + self.tail(), ".html"
+
+class UserSearch(WebPage):
+
+	def show(self,postVars = {}, path = "buscaUsuario", user = User()):
+		return "",".html"
 
 class FormPage(WebPage):
 

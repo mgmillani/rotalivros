@@ -13,30 +13,52 @@
 
  \maketitle 
  
- \begin{figure}[H]
-  \includegraphics[totalheight=\textheight]{pacotes.eps}
-  \caption{Diagrama de Pacotes},
- \end{figure}
+\section{Pacotes}
+ 
+	\begin{figure}[H]
+		\includegraphics[totalheight=0.9\textheight]{pacotes.eps}
+		\caption{Diagrama de Pacotes}
+	\end{figure}
+	
+	Escolhemos uma arquitetura em camada para desenvolver o projeto. As camadas existentes são:
+	\begin{description}
+	 \item [Low-level Operations] Responsável por lidar com o acesso ao banco de dados para buscar e armazenar as informações.
+	 \item [System Operations] Realiza as operações lógicas do sistema, isto é, implementa os casos de uso em si, mas delegando a concretização deles a camada de Low-level Operations e recebendo os pedidos da camada User Interface
+	 \item [User Interface] Recebe diretamente os pedidos do usuário, sendo responsável por respeitar o protocolo HTTP e fazer com que a informação chegue ao usuário. Repassa os pedidos a camada System Operations, que deve processá-los e devolver os dados prontos para o usuário.
+	\end{description}
+	
+	A razão dessa escolha se dá pelo fato de a aplicação ser Web. Nesse casos, é necessário que haja um servidor que recebe os pedidos do usuário e envia a resposta. Como queríamos concentrar as pesquisas no banco de dados em um único módulo de forma que algum problema com o SQL que ocorresse estaria melhor isolado. Com isso, ficávamos naturalmente com duas camadas: uma para interface e outra para o banco de dados. O mais lógico era criar uma outra camada onde a semântica das operações seria implementada, realizando assim os casos de uso.
+
+	
+\section{Componentes}
  
  \begin{figure}[H]
-  \includegraphics[angle=90,totalheight=\textheight]{componentes.eps}
+  \includegraphics[angle=90,totalheight=0.9\textheight]{componentes.eps}
   \caption{Diagrama de Componentes}
  \end{figure}
  
+\section{Modelo Entidade-Relacionamento}
  \begin{figure}[H]
-  \includegraphics[angle=90,totalheight=\textheight]{modeloER.eps}
+  \includegraphics[angle=90,totalheight=0.8\textheight]{modeloER.eps}
   \caption{Modelo Entidade-Relacionamento}
  \end{figure}
  
+\section{Casos de Uso}
  \begin{figure}[H]
-  \includegraphics[angle=90,totalheight=\textheight]{casosDeUso.eps}
+  \includegraphics[angle=90,totalheight=0.9\textheight]{casosDeUso.eps}
   \caption{Diagrama de Casos de Uso}
+ \end{figure}
+ 
+\section{Sequência}
+ \begin{figure}[H]
+  \includegraphics[width=\textwidth]{sequencia.eps}
+  \caption{Diagrama de Sequência}
  \end{figure}
  
  \section{Classes}
  
  \begin{figure}[H]
-  \includegraphics[totalheight=0.75\textheight]{classes.eps}
+  \includegraphics[width=\textwidth]{classes.eps}
   \caption{Diagrama de Classes}
  \end{figure}
  
@@ -301,6 +323,22 @@
 				\end{description} % entrada
 				
 			 \item [retorno : NoneType ]
+			 
+			 \end{description} % propriedades
+			 
+			 \item [createGroup] cria um novo grupo no sistema
+			\begin{description} % propriedades
+			 \item [visibilidade] Público
+			 \item [Entrada] \mbox{}
+				\begin{description} % entrada
+				 \item [name : str] nome do grupo
+				 \item [userId : int] Id do usuário que é dono do grupo
+				 \item [maxUsers : int] número máximo de usuários no grupo
+				 \item [private : bool] se o grupo é privado ou não
+				 \item [maxTime : int] tempo máximo entre uma troca e outra, em dias
+				\end{description} % entrada
+				
+			 \item [retorno : NoneType ]
 				
 			\end{description} % propriedades
 			
@@ -408,60 +446,240 @@
 				\end{description} % entrada
 				\item [Retorno : str] código HTML para a tabela
 			\end{description} % propriedades
+		\end{description} % métodos
 		
 	
 	\subsection{GroupSearch}
 	
 	\begin{description}
-		\item [Propósito] Centralizar as pesquisas no banco de dados de forma que conhecimento deste seja apenas necessário dentro da classe.
+		\item [Super classe] WebPage
+		\item [Propósito] Permite que o usuário busque todos os grupos existentes. Lista tanto os grupos públicos quanto aqueles aos quais o usuário recebeu um convite.
 	\end{description}
+	
+	\subsubsection{Métodos}
+		\begin{description} % métodos
+		 \item [show] gera a página que lista os grupos aos quais o usuário pode se juntar
+			\begin{description} % propriedades
+				\item [visibilidade] Público			 
+				\item [Retorno : (str,str)] HTML da página e a string ".html" (tipo dos dados)
+			\end{description} % propriedades
+		\end{description} % métodos
 	
 	\subsection{ReviewPage}
 	
 	\begin{description}
-		\item [Propósito] Centralizar as pesquisas no banco de dados de forma que conhecimento deste seja apenas necessário dentro da classe.
+		\item [Super classe] WebPage
+		\item [Propósito] Gera a página para a avaliação dos outros membros do grupo. Depois de o usuário responder, a avaliação dos membros do grupo será atualizada.
 	\end{description}
+	
+	\subsubsection{Métodos}
+		\begin{description} % métodos
+		 \item [show] gera a página de avaliação
+			\begin{description} % propriedades
+				\item [visibilidade] Público			 
+				\item [Retorno : (str,str)] HTML da página e a string ".html" (tipo dos dados)
+			\end{description} % propriedades
+		\end{description} % métodos
 	
 	\subsection{AdminPage}
 	
 	\begin{description}
-		\item [Propósito] Centralizar as pesquisas no banco de dados de forma que conhecimento deste seja apenas necessário dentro da classe.
+		\item [Super classe] WebPage
+		\item [Propósito] Gera a página do administrador, permitindo que o mesmo determine quais usuários serão aceitos no serviço.
 	\end{description}
+	
+	\subsubsection{Métodos}
+		\begin{description} % métodos
+		 \item [show] gera a página do administrador
+			\begin{description} % propriedades
+				\item [visibilidade] Público			 
+				\item [Retorno : (str,str)] HTML da página e a string ".html" (tipo dos dados)
+			\end{description} % propriedades
+		\end{description} % métodos
 	
 	\subsection{UserSearch}
 	
 	\begin{description}
-		\item [Propósito] Centralizar as pesquisas no banco de dados de forma que conhecimento deste seja apenas necessário dentro da classe.
+		\item [Super classe] WebPage
+		\item [Propósito] Gera uma página que permite a um usuário pesquisar outros pelo nome
 	\end{description}
+	
+	\subsubsection{Métodos}
+		\begin{description} % métodos
+		 \item [show] gera a página de busca
+			\begin{description} % propriedades
+				\item [visibilidade] Público			 
+				\item [Retorno : (str,str)] HTML da página e a string ".html" (tipo dos dados)
+			\end{description} % propriedades
+		\end{description} % métodos
 	
 	\subsection{UserGroups}
 	
 	\begin{description}
-		\item [Propósito] Centralizar as pesquisas no banco de dados de forma que conhecimento deste seja apenas necessário dentro da classe.
+		\item [Super classe] WebPage
+		\item [Propósito] Gera a página com todos os grupos dos quais o usuário faz parte. Para cada grupo, mostra seu nome e o livro oferecido pelo usuário.
 	\end{description}
+	
+	\subsubsection{Métodos}
+		\begin{description} % métodos
+		 \item [show] gera a página dos grupos
+			\begin{description} % propriedades
+				\item [visibilidade] Público			 
+				\item [Retorno : (str,str)] HTML da página e a string ".html" (tipo dos dados)
+			\end{description} % propriedades
+		\end{description} % métodos
 	
 	\subsection{FormPage}
 	
 	\begin{description}
-		\item [Propósito] Centralizar as pesquisas no banco de dados de forma que conhecimento deste seja apenas necessário dentro da classe.
+		\item [Super classe] WebPage
+		\item [Propósito] Gera a página de um formulário específico. Depois de o usuário respondê-lo, envia uma mensagem ao devido usuário.
 	\end{description}
+	
+	\subsubsection{Métodos}
+		\begin{description} % métodos
+		 \item [show] gera a página do formulário
+			\begin{description} % propriedades
+				\item [visibilidade] Público			 
+				\item [Retorno : (str,str)] HTML da página e a string ".html" (tipo dos dados)
+			\end{description} % propriedades
+		\end{description} % métodos
 	
 	\subsection{GroupPage}
 	
 	\begin{description}
-		\item [Propósito] Centralizar as pesquisas no banco de dados de forma que conhecimento deste seja apenas necessário dentro da classe.
+		\item [Super classe] WebPage
+		\item [Propósito] Gera a página de um grupo específico. Nessa página são listados os livros oferecidos pelos membros, assim como suas avaliações. Caso todos os membros já tenham confirmado sua participação, mostra para qual endereço o usuário deve enviar o próximo livro e até quando isso deve ser feito.
 	\end{description}
+	
+	\subsubsection{Métodos}
+		\begin{description} % métodos
+		 \item [show] gera a página do grupo
+			\begin{description} % propriedades
+				\item [visibilidade] Público			 
+				\item [Retorno : (str,str)] HTML da página e a string ".html" (tipo dos dados)
+			\end{description} % propriedades
+		\end{description} % métodos
 	
 	\subsection{Home}
 	
 	\begin{description}
-		\item [Propósito] Centralizar as pesquisas no banco de dados de forma que conhecimento deste seja apenas necessário dentro da classe.
+		\item [Super classe] WebPage
+		\item [Propósito] Gera a página principal do site, onde são mostradas as mensagens que este recebeu. Além disso, nessa página o usuário pode criar novos grupos.
 	\end{description}
+	
+	\subsubsection{Métodos}
+		\begin{description} % métodos
+		 \item [show] gera a página principal
+			\begin{description} % propriedades
+				\item [visibilidade] Público			 
+				\item [Retorno : (str,str)] HTML da página e a string ".html" (tipo dos dados)
+			\end{description} % propriedades
+		\end{description} % métodos
 	
 	\subsection{Message}
 	
 	\begin{description}
-		\item [Propósito] Centralizar as pesquisas no banco de dados de forma que conhecimento deste seja apenas necessário dentro da classe.
-	\end{description}
+		\item [Propósito] Centralizar o envio de mensagens entre os usuários.
+	\end{description}	
+	
+	\subsubsection{Atributos}
+		\begin{description}
+		 \item [text : str] corpo da mensagem
+		 \item [fromId : int] id do usuário que enviou a mensagem
+		 \item [toId : int] id do usuário que receberá a mensagem
+		 \item [fromName : str] nome que o destinatário verá como sendo 
+		 \item [subject : str] assunto da mensagem
+		\end{description}	
+	
+	\subsubsection{Métodos}
+		\begin{description} % métodos
+		 \item [send] envia a mensagem para um usuário
+			\begin{description} % propriedades
+				\item [visibilidade] Público
+				\item [Entrada] \mbox{}
+					\begin{description}
+					 \item [userId : int] usuário que receberá a mensagem
+					 \item [database : Database] banco de dados no qual a mensagem ficará armazenada
+					\end{description}
+
+				\item [Retorno : NoneType]
+			\end{description} % propriedades
+			
+			\item [makeUserMessage] cria uma mensagem entre dois usuários
+			\begin{description} % propriedades
+				\item [visibilidade] Público
+				\item [Entrada] \mbox{}
+					\begin{description}
+					 \item [fromUserId : int] id do usuário que está enviando a mensagem
+					 \item [subject : str] assunto
+					 \item [text : str] corpo
+					\end{description}
+
+				\item [Retorno : NoneType]
+			\end{description} % propriedades
+			
+			\item [makeGiveUpMessage] cria uma mensagem de quando um usuário desiste de um grupo
+			\begin{description} % propriedades
+				\item [visibilidade] Público
+				\item [Entrada] \mbox{}
+					\begin{description}
+					 \item [moderatorId : int] id do moderador do grupo
+					 \item [userId : int] id usuário que desistiu do grupo
+					 \item [reason : str] razão dada pelo usuário sobre a desistência
+					\end{description}
+
+				\item [Retorno : NoneType]
+			\end{description} % propriedades
+			
+			\item [makeJoinMessage] cria uma mensagem de quando um usuário se junta a um grupo
+			\begin{description} % propriedades
+				\item [visibilidade] Público
+				\item [Entrada] \mbox{}
+					\begin{description}
+					 \item [groupId : int] id do grupo
+					 \item [userId : int] id usuário que se juntou do grupo
+					 \item [book : T] onde T é uma Struct com os campos:
+						\begin{description} 
+							\item [title : str] Título
+							\item [author : str] Autor
+							\item [year : str] Ano de publicação
+							\item [publisher : str] Editora
+							\item [edition : str] Edição
+							\item [isbn : str] Código ISBN
+						\end{description}
+					\end{description}
+
+				\item [Retorno : NoneType]
+			\end{description} % propriedades
+			
+			\item [makeBanMessage] cria uma mensagem de quando um moderador bane um usuário de seu grupo
+			\begin{description} % propriedades
+				\item [visibilidade] Público
+				\item [Entrada] \mbox{}
+					\begin{description}
+					 \item [groupId : int] id do grupo					 
+					 \item [reason : str] justificativa dada pelo moderador para banir o usuário
+					 \item [bannedId : int] id usuário que foi banido do grupo
+					\end{description}
+
+				\item [Retorno : NoneType]
+			\end{description} % propriedades
+			
+			\item [makeReportMessage] cria uma mensagem de quando um usuário denuncia outro
+			\begin{description} % propriedades
+				\item [visibilidade] Público
+				\item [Entrada] \mbox{}
+					\begin{description}
+					 \item [reportedUserId : int] id do usuário que foi denunciado
+					 \item [reason : str] justificativa dada pelo usuário para denunciar o outro
+					 \item [byUserId : int] id usuário que denunciou o outro
+					 \item [groupId : int] id do grupo
+					\end{description}
+
+				\item [Retorno : NoneType]
+			\end{description} % propriedades
+			
+		\end{description} % métodos
  
 \end{document}
