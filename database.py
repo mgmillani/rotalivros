@@ -106,7 +106,9 @@ class Database():
 		connection = MySQLdb.connect(host=self.host,user=self.user,passwd=self.passwd,db=self.db)
 		cursor = connection.cursor()
 		# determina para qual usuario deve-se mandar o livro
-		cursor.execute("SELECT userId FROM exchanges WHERE fromUser=%s and groupId=%d"%(userId,groupId))
+		query = "SELECT toUserId FROM exchanges WHERE fromUserId=%s and groupId=%d"%(userId,groupId)
+		print("Destination info : %s"%(query))
+		cursor.execute(query)
 		rows = cursor.fetchall()
 		toUser = rows[0][0]
 
@@ -225,6 +227,23 @@ class Database():
 		cursor.close()
 		connection.close()
 
+	def createNewGroup(self,userId,name,maxUsers,maxTime,private):
+		connection = MySQLdb.connect(host=self.host,user=self.user,passwd=self.passwd,db=self.db)
+		cursor = connection.cursor()
+		#determina o maior id existente
+		query = "SELECT max(groupId) FROM groups"
+		cursor.execute(query)
+		groupId = cursor.fetchall()[0][0]+1
+
+		query = "INSERT INTO groups (owner,groupId,name,maxUsers,maxTime,private) VALUES (%d,%d,'%s',%d,%d,%d)"%(userId,groupId,name,maxUsers,maxTime,private)
+
+		try:
+			cursor.execute(query)
+			connection.commit()
+		except MySQLdb.Error, e:
+			print("Erro no banco de dados: %s"%e)
+			print("Tentou-se executar %s"%(query))
+
 	def confirmUserParticipation(self,userId,groupId):
 		connection = MySQLdb.connect(host=self.host,user=self.user,passwd=self.passwd,db=self.db)
 		cursor = connection.cursor()
@@ -259,12 +278,16 @@ class Database():
 		r = Random()
 		r.shuffle(users)
 
-		tupples = []
+		tuples = []
 		for a in range(0,len(users)-1):
-			tupples.append("(%d,%d,%d)"%(users[a],users[a+1],groupId))
-		tupples.append("(%d,%d,%d)"%(users[-1],users[0],groupId))
+			tuples.append("(%d,%d,%d)"%(users[a],users[a+1],groupId))
+		tuples.append("(%d,%d,%d)"%(users[-1],users[0],groupId))
 
-		query = "INSERT INTO exchanges (fromUser, toUser, groupId) VALUES " + ",".join(tupples)
+		print("Tuples")
+		for t in tuples:
+			print(t)
+
+		query = "INSERT INTO exchanges (fromUserId, toUserId, groupId) VALUES " + ",".join(tuples)
 		try:
 			cursor.execute(query)
 		except MySQLdb.Error, e:
@@ -272,8 +295,9 @@ class Database():
 			print("Tentou-se executar %s"%(query))
 
 		# adiciona a data em que o ciclo comecou
-		today = "2013/04/02"
-		query = "INSERT INTO cicles (groupId,beginDate) VALUES (%d,%s)"%(groupId,today)
+		today = "2013/06/28"
+		query = "INSERT INTO cicles (groupId,beginDate) VALUES (%d,'%s')"%(groupId,today)
+		print("Cicle:\n%s"%(query))
 		try:
 			cursor.execute(query)
 		except MySQLdb.Error, e:

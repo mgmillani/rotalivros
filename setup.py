@@ -64,7 +64,7 @@ confirmed int,\
 PRIMARY KEY (userId,groupId))")
 cursor.execute("CREATE TABLE invitations (userId int, groupId int, PRIMARY KEY (userId,groupId))")
 
-cursor.execute("CREATE TABLE exchanges (fromUserId int, toUserId int, groupId int, PRIMARY KEY (groupId))")
+cursor.execute("CREATE TABLE exchanges (fromUserId int, toUserId int, groupId int)")
 
 cursor.execute("CREATE TABLE cicles (groupId int, beginDate varchar(32))")
 

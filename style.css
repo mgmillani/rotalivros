@@ -25,6 +25,15 @@ p.center{color:black ; text-align:center; margin-left:10px ; margin-right:10px;}
 p.even{color:#559911; text-align:left; margin-left:10px ;font-size:18px}
 p.odd{color:#77BB33; text-align:left; margin-left:10px ;font-size:18px}
 
+label.group
+{
+	color: #2255ff;
+	font-weight: bold;
+	display: block;
+	width: 450px;
+	float: left;
+}
+
 label.required
 {
 	color: #FF5522;
@@ -44,6 +53,14 @@ label.optional
 }
 
 div.header {padding:0px; background-color:#5DAF0B;}
+
+div.comment
+{
+	padding:5px;
+	border:5px outset #a8cfaa;
+	margin:5px;
+	background-color:#ddffdd;
+}
 
 div.pb
 {

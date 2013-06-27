@@ -123,6 +123,11 @@ class GroupPage(WebPage):
 		# verifica a relacao entre o usuario e o grupo
 		if self.database.isModeratorOf(user.userId,groupId):
 			contents += "Adicionar funcionalidades do moderador"
+			if not self.database.isMemberOf(user.userId,groupId):
+				# Adiciona a possiblidade de se juntar ao grupo
+				f = open("pages/join.html","rt")
+				contents += f.read()%(groupId)
+				f.close()
 		elif self.database.isMemberOf(user.userId,groupId):
 			if not self.database.userHasConfirmed(user.userId,groupId):
 				# Adiciona opcoes de desistencia
@@ -136,11 +141,12 @@ class GroupPage(WebPage):
 					f.close()
 			# se o ciclo de trocas ja comecou, mostra ao usuario para quem deve mandar o livro, e quanto tempo tem para faze-lo
 			elif self.database.groupCicleHasStarted(groupId):
-				contents += "Ciclo de trocas já começou"
+				#contents += "Ciclo de trocas já começou"
 				# determina para quem o usuario deve mandar os livros e até qual data
-				destination = self.database.getDestinationInfo(user.id,groupId)
+				destination = self.database.getDestinationInfo(user.userId,groupId)
 				contents += "<p>Endereço de Destino:%s</p>\n<br>"%(destination.address)
 				contents += "<p>Data limite:%s</p>\n<br>"%(destination.date)
+				contents += self.generatePostCodeSubmission(groupId)
 			# caso contrario, apenas informa que o usuario ja confirmou sua participacao
 			else:
 				contents += "Participação no grupo já foi confirmada"
@@ -150,20 +156,19 @@ class GroupPage(WebPage):
 			contents += f.read()%(groupId)
 			f.close()
 
-
-		'''
-		elif:
-			# caso esteja cheio, libera as opcoes de desistencia e de confirmacao
-			f = open("pages/groupMember.html")
-			contents = f.read()
-			f.close()
-		'''
 		return self.header() + contents + infoTable + self.tail(), ".html"
+
+	def generatePostCodeSubmission(self,groupId):
+		f = open("pages/postCode.html")
+		result = f.read()%(groupId)
+		f.close()
+		return result
+
 
 class GroupSearch(WebPage):
 
 	def show(self,postVars = {}, path = "buscaGrupos", user = User()):
-		f = open("pages/busca.html")
+		f = open("pages/buscaGrupos.html")
 		contents = f.read()
 		f.close()
 		groupList = self.database.getGroupList(user.userId)
@@ -200,6 +205,17 @@ class FormPage(WebPage):
 class Home(WebPage):
 
 	def show(self,postVars = {}, path = "home", user = User()):
+
+		if 'newGroup' in postVars:
+			name = postVars['groupName'][0]
+			maxUsers = int(postVars['maxMembers'][0])
+			maxTime = int(postVars['maxTime'][0])
+			if maxTime != "" and name != "" and maxUsers != "":
+				if 'private' in postVars:
+					self.database.createNewGroup(user.userId,name=name,maxTime=maxTime , maxUsers = maxUsers, private = 1)
+				else:
+					self.database.createNewGroup(user.userId,name=name,maxTime=maxTime , maxUsers = maxUsers,private = 0)
+
 		f = open("pages/home.html")
 		contents = f.read()
 		f.close()
